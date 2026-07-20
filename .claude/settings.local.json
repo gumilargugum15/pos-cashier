@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mysql -u gugum -p123456 kagoem_pos -e \"SELECT id, sku, name, deleted_at FROM products WHERE sku='PW-SKU-001';\")",
+      "Bash(mysql -u gugum -p123456 kagoem_pos -e \"DELETE FROM products WHERE sku='PW-SKU-001';\")"
+    ]
+  }
+}
