@@ -19,7 +19,7 @@ import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
-    meta: [{ title: "Login · Nova POS" }],
+    meta: [{ title: "Login · Warung Epon" }],
   }),
   component: LoginPage,
 });
@@ -61,7 +61,7 @@ function LoginPage() {
     <div className="flex min-h-dvh items-center justify-center bg-background px-4">
       <Card className="w-full max-w-sm p-8 rounded-2xl shadow-soft border-border/60">
         <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold tracking-tight text-primary">Nova POS</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-primary">Warung Epon</h1>
           <p className="mt-1 text-sm text-muted-foreground">Masuk ke akun Anda</p>
         </div>
 
