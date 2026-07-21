@@ -28,6 +28,7 @@ import { formatRupiah } from "@/lib/format-currency";
 import { useProducts } from "@/hooks/use-products";
 import { useCategories } from "@/hooks/use-categories";
 import { useCheckout, extractErrorMessage } from "@/hooks/use-sales";
+import { useActiveBranch } from "@/hooks/use-active-branch";
 import { useHeldCarts, type HeldCart } from "@/hooks/use-held-carts";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useBluetoothPrinter } from "@/hooks/use-bluetooth-printer";
@@ -76,6 +77,7 @@ function POSPage() {
   const debouncedQuery = useDebouncedValue(query, 300);
   const { heldCarts, holdCart, discardCart } = useHeldCarts();
   const checkout = useCheckout();
+  const { effectiveBranchId } = useActiveBranch();
   const bluetoothPrinter = useBluetoothPrinter();
   const { data: settings } = useSettings();
 
@@ -190,6 +192,7 @@ function POSPage() {
     }
     try {
       const sale = await checkout.mutateAsync({
+        branch_id: effectiveBranchId,
         customer_id: customer?.id ?? null,
         items: cart.map((l) => ({ product_id: l.product.id, qty: l.qty })),
         payment_method: paymentMethod,
@@ -232,7 +235,7 @@ function POSPage() {
     <div className="flex flex-col lg:h-[calc(100dvh-4rem)] lg:flex-row lg:overflow-hidden">
       {/* LEFT — Products */}
       <section className="flex-1 min-w-0 flex flex-col border-r">
-        <div className="p-4 lg:p-5 space-y-3 border-b glass sticky top-0 z-10">
+        <div className="p-4 lg:p-5 space-y-3 border-b glass sticky top-16 lg:top-0 z-10">
           <div className="grid grid-cols-[1fr_auto_auto] gap-2">
             <div className="relative">
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -310,7 +313,7 @@ function POSPage() {
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
-              {products.map((p) => {
+              {products.map((p, i) => {
                 const low = p.stock <= p.min_stock;
                 const outOfStock = p.stock <= 0;
                 return (
@@ -318,9 +321,12 @@ function POSPage() {
                     key={p.id}
                     onClick={() => add(p)}
                     disabled={outOfStock}
-                    className="group relative text-left rounded-2xl bg-card border border-border p-3 shadow-soft hover:shadow-elevated hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:hover:translate-y-0 disabled:cursor-not-allowed"
+                    className={cn(
+                      "group relative text-left rounded-2xl bg-card border border-border p-3 shadow-soft hover:shadow-elevated hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:hover:translate-y-0 disabled:cursor-not-allowed",
+                      i >= 6 && "hidden sm:block",
+                    )}
                   >
-                    <div className="relative aspect-square rounded-xl bg-muted overflow-hidden">
+                    <div className="relative h-20 sm:h-24 md:h-28 rounded-xl bg-muted overflow-hidden">
                       {p.image_url ? (
                         <img
                           src={p.image_url}
@@ -329,7 +335,7 @@ function POSPage() {
                         />
                       ) : (
                         <div className="size-full grid place-items-center text-muted-foreground">
-                          <Package className="size-8" />
+                          <Package className="size-6" />
                         </div>
                       )}
                       {p.discount_percentage > 0 && (

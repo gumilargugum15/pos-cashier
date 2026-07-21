@@ -26,9 +26,9 @@ class StockMovementService
         return $this->movements->find($id);
     }
 
-    public function record(array $data, int $userId): StockMovement
+    public function record(array $data, int $userId, ?int $branchId = null): StockMovement
     {
-        return DB::transaction(function () use ($data, $userId) {
+        return DB::transaction(function () use ($data, $userId, $branchId) {
             /** @var Product $product */
             $product = Product::whereKey($data['product_id'])->lockForUpdate()->firstOrFail();
 
@@ -48,6 +48,7 @@ class StockMovementService
 
             return $this->movements->create([
                 'reference_number' => $this->generateReferenceNumber(),
+                'branch_id' => $branchId,
                 'product_id' => $product->id,
                 'type' => $type,
                 'quantity' => $quantity,

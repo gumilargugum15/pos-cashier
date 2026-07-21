@@ -26,11 +26,12 @@ class PurchaseService
         return $this->purchases->find($id);
     }
 
-    public function create(array $data, int $userId): Purchase
+    public function create(array $data, int $userId, ?int $branchId = null): Purchase
     {
         [$purchaseData, $items] = $this->buildPurchaseData($data);
 
         $purchaseData['purchase_number'] = $this->generatePurchaseNumber();
+        $purchaseData['branch_id'] = $branchId;
         $purchaseData['supplier_id'] = $data['supplier_id'];
         $purchaseData['user_id'] = $userId;
         $purchaseData['status'] = 'ordered';

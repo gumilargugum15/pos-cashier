@@ -29,7 +29,7 @@ class UserRepository implements UserRepositoryInterface
 
     public function paginate(array $filters): LengthAwarePaginator
     {
-        $query = User::query()->with('roles');
+        $query = User::query()->with(['roles', 'branch']);
 
         if (! empty($filters['search'])) {
             $search = $filters['search'];
@@ -45,6 +45,10 @@ class UserRepository implements UserRepositoryInterface
 
         if (! empty($filters['role'])) {
             $query->whereHas('roles', fn ($q) => $q->where('name', $filters['role']));
+        }
+
+        if (! empty($filters['branch_id'])) {
+            $query->where('branch_id', $filters['branch_id']);
         }
 
         $sort = in_array($filters['sort'] ?? null, self::SORTABLE, true) ? $filters['sort'] : 'name';

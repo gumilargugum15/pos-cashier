@@ -3,10 +3,29 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 abstract class Controller
 {
+    /**
+     * Resolve which branch a request should be scoped to.
+     *
+     * Users with a home branch are always locked to it (their own input is ignored,
+     * so they can't spoof another branch). Users without a home branch (e.g. Admin/Owner)
+     * may optionally pass a `branch_id` to scope a listing or tag a transaction.
+     */
+    protected function resolveBranchId(Request $request): ?int
+    {
+        $homeBranchId = $request->user()?->branch_id;
+
+        if ($homeBranchId) {
+            return (int) $homeBranchId;
+        }
+
+        return $request->filled('branch_id') ? (int) $request->input('branch_id') : null;
+    }
+
     protected function success(mixed $data = null, string $message = 'Berhasil', int $status = 200): JsonResponse
     {
         return response()->json([

@@ -29,6 +29,7 @@ class UpdateUserRequest extends FormRequest
             'email' => ['sometimes', 'required', 'email', 'max:255', 'unique:users,email,'.$userId],
             'password' => ['sometimes', 'nullable', 'string', 'min:8', 'confirmed'],
             'phone' => ['sometimes', 'nullable', 'string', 'max:30'],
+            'branch_id' => ['sometimes', 'nullable', 'integer', 'exists:branches,id'],
             'is_active' => ['sometimes', 'boolean'],
             'roles' => ['sometimes', 'array'],
             'roles.*' => ['string', 'exists:roles,name'],

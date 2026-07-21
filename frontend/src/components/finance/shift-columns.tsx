@@ -12,6 +12,13 @@ export function createShiftColumns(): ColumnDef<Shift>[] {
       cell: ({ row }) => <span className="font-medium">{row.original.user_name ?? "—"}</span>,
     },
     {
+      id: "branch",
+      header: "Cabang",
+      cell: ({ row }) => (
+        <span className="text-muted-foreground">{row.original.branch_name ?? "—"}</span>
+      ),
+    },
+    {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => (

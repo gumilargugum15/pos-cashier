@@ -9,6 +9,13 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -26,6 +33,7 @@ import {
 } from "@/components/ui/form";
 import { useCreateUser, useUpdateUser } from "@/hooks/use-users";
 import { useRoles } from "@/hooks/use-roles";
+import { useBranches } from "@/hooks/use-branches";
 import type { User } from "@/types/auth";
 import type { UserPayload } from "@/types/user";
 
@@ -37,6 +45,7 @@ function buildUserSchema(isEditing: boolean) {
       password: z.string().optional().or(z.literal("")),
       password_confirmation: z.string().optional().or(z.literal("")),
       phone: z.string().max(30).optional().or(z.literal("")),
+      branch_id: z.number().nullable(),
       is_active: z.boolean(),
       roles: z.array(z.string()),
     })
@@ -60,6 +69,7 @@ type UserFormValues = {
   password?: string;
   password_confirmation?: string;
   phone?: string;
+  branch_id: number | null;
   is_active: boolean;
   roles: string[];
 };
@@ -75,6 +85,7 @@ export function UserFormDialog({ open, onOpenChange, user }: UserFormDialogProps
   const createUser = useCreateUser();
   const updateUser = useUpdateUser();
   const { data: rolesData, isLoading: rolesLoading } = useRoles();
+  const { data: branchesData } = useBranches({ is_active: "1", per_page: 100 });
   const isSubmitting = createUser.isPending || updateUser.isPending;
 
   const form = useForm<UserFormValues>({
@@ -85,6 +96,7 @@ export function UserFormDialog({ open, onOpenChange, user }: UserFormDialogProps
       password: "",
       password_confirmation: "",
       phone: "",
+      branch_id: null,
       is_active: true,
       roles: [],
     },
@@ -98,6 +110,7 @@ export function UserFormDialog({ open, onOpenChange, user }: UserFormDialogProps
         password: "",
         password_confirmation: "",
         phone: user?.phone ?? "",
+        branch_id: user?.branch_id ?? null,
         is_active: user?.is_active ?? true,
         roles: user?.roles ?? [],
       });
@@ -109,6 +122,7 @@ export function UserFormDialog({ open, onOpenChange, user }: UserFormDialogProps
       name: values.name,
       email: values.email,
       phone: values.phone || null,
+      branch_id: values.branch_id,
       is_active: values.is_active,
       roles: values.roles,
     };
@@ -218,6 +232,37 @@ export function UserFormDialog({ open, onOpenChange, user }: UserFormDialogProps
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="branch_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cabang</FormLabel>
+                  <Select
+                    value={field.value ? String(field.value) : "none"}
+                    onValueChange={(value) =>
+                      field.onChange(value === "none" ? null : Number(value))
+                    }
+                  >
+                    <FormControl>
+                      <SelectTrigger className="h-10 rounded-xl">
+                        <SelectValue placeholder="Semua Cabang" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="none">Semua Cabang (tidak terikat)</SelectItem>
+                      {branchesData?.data.map((branch) => (
+                        <SelectItem key={branch.id} value={String(branch.id)}>
+                          {branch.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

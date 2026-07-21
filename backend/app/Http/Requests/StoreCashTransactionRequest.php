@@ -23,6 +23,7 @@ class StoreCashTransactionRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'branch_id' => ['nullable', 'integer', 'exists:branches,id'],
             'type' => ['required', 'in:in,out'],
             'category' => ['required', 'in:income,deposit,expense,withdrawal,other'],
             'amount' => ['required', 'numeric', 'min:0.01'],

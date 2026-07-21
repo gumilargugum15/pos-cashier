@@ -22,7 +22,7 @@ class UserController extends Controller
     public function index(Request $request): JsonResponse
     {
         $paginator = $this->userService->paginate($request->only([
-            'search', 'is_active', 'role', 'sort', 'direction', 'per_page',
+            'search', 'is_active', 'role', 'branch_id', 'sort', 'direction', 'per_page',
         ]))->through(fn (User $user) => new UserResource($user));
 
         return $this->paginated($paginator);
@@ -37,7 +37,7 @@ class UserController extends Controller
 
     public function show(User $user): JsonResponse
     {
-        return $this->success(new UserResource($user->load('roles')));
+        return $this->success(new UserResource($user->load(['roles', 'branch'])));
     }
 
     public function update(UpdateUserRequest $request, User $user): JsonResponse

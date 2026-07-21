@@ -73,6 +73,13 @@ export function createPurchaseColumns({
       cell: ({ row }) => <span className="truncate">{row.original.supplier?.name ?? "—"}</span>,
     },
     {
+      id: "branch",
+      header: "Cabang",
+      cell: ({ row }) => (
+        <span className="text-muted-foreground">{row.original.branch_name ?? "—"}</span>
+      ),
+    },
+    {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => (

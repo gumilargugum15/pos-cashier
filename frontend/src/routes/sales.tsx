@@ -28,6 +28,7 @@ import { SaleDetailDialog } from "@/components/sales/sale-detail-dialog";
 import { CustomerFilterCombobox } from "@/components/sales/customer-filter-combobox";
 import { useRefundSale, useSales } from "@/hooks/use-sales";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useActiveBranch } from "@/hooks/use-active-branch";
 import type { Sale, SaleListParams } from "@/types/sale";
 
 export const Route = createFileRoute("/sales")({
@@ -49,12 +50,14 @@ function SalesPage() {
   const [refundingSale, setRefundingSale] = useState<Sale | null>(null);
 
   const debouncedSearch = useDebouncedValue(search, 400);
+  const { effectiveBranchId } = useActiveBranch();
 
   const params: SaleListParams = {
     search: debouncedSearch || undefined,
     status: statusFilter || undefined,
     payment_method: paymentMethodFilter || undefined,
     customer_id: customerFilter?.id ?? undefined,
+    branch_id: effectiveBranchId ?? undefined,
     sort: (sorting[0]?.id as SaleListParams["sort"]) ?? "created_at",
     direction: sorting[0]?.desc ? "desc" : "asc",
     per_page: 15,

@@ -5,6 +5,8 @@ export type User = {
   phone: string | null;
   avatar_url: string | null;
   is_active: boolean;
+  branch_id: number | null;
+  branch_name: string | null;
   roles: string[];
   permissions: string[];
 };

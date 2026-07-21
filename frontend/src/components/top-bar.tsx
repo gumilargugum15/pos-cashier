@@ -15,10 +15,10 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { AppSidebar } from "./app-sidebar";
 import { CommandPalette } from "./command-palette";
 import { useAuth } from "@/hooks/use-auth";
+import { useActiveBranch } from "@/hooks/use-active-branch";
 import { useBranches } from "@/hooks/use-branches";
 
 const DARK_MODE_KEY = "nova_pos_dark_mode";
-const ACTIVE_BRANCH_KEY = "nova_pos_active_branch";
 
 function getInitials(name: string): string {
   return name
@@ -35,8 +35,8 @@ export function TopBar() {
   const [online, setOnline] = useState(true);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
-  const [activeBranchName, setActiveBranchName] = useState<string | null>(null);
   const { user, logout } = useAuth();
+  const { effectiveBranchId, canSwitchBranch, setActiveBranchId } = useActiveBranch();
   const navigate = useNavigate();
   const { data: branches } = useBranches({
     is_active: "1",
@@ -45,21 +45,19 @@ export function TopBar() {
     direction: "asc",
   });
 
+  const activeBranchName = canSwitchBranch
+    ? (branches?.data.find((b) => b.id === effectiveBranchId)?.name ?? "Semua Cabang")
+    : (user?.branch_name ?? "Semua Cabang");
+
   async function handleSignOut() {
     await logout();
     navigate({ to: "/login" });
-  }
-
-  function selectBranch(name: string) {
-    setActiveBranchName(name);
-    localStorage.setItem(ACTIVE_BRANCH_KEY, name);
   }
 
   useEffect(() => {
     const storedDark = localStorage.getItem(DARK_MODE_KEY) === "1";
     setDark(storedDark);
     document.documentElement.classList.toggle("dark", storedDark);
-    setActiveBranchName(localStorage.getItem(ACTIVE_BRANCH_KEY));
     setOnline(navigator.onLine);
 
     const handleOnline = () => setOnline(true);
@@ -122,28 +120,35 @@ export function TopBar() {
 
         <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} />
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="hidden md:flex h-10 rounded-xl gap-2">
-              <span className="size-2 rounded-full bg-primary" />
-              {activeBranchName ?? "Semua Cabang"}
-              <ChevronDown className="size-4 opacity-60" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="rounded-xl">
-            <DropdownMenuLabel>Switch branch</DropdownMenuLabel>
-            {branches?.data.length ? (
-              branches.data.map((branch) => (
-                <DropdownMenuItem key={branch.id} onClick={() => selectBranch(branch.name)}>
+        {canSwitchBranch ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="hidden md:flex h-10 rounded-xl gap-2">
+                <span className="size-2 rounded-full bg-primary" />
+                {activeBranchName}
+                <ChevronDown className="size-4 opacity-60" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="rounded-xl">
+              <DropdownMenuLabel>Switch branch</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => setActiveBranchId(null)}>
+                <span className="flex-1">Semua Cabang</span>
+                {effectiveBranchId === null && <Check className="size-4" />}
+              </DropdownMenuItem>
+              {branches?.data.map((branch) => (
+                <DropdownMenuItem key={branch.id} onClick={() => setActiveBranchId(branch.id)}>
                   <span className="flex-1">{branch.name}</span>
-                  {activeBranchName === branch.name && <Check className="size-4" />}
+                  {effectiveBranchId === branch.id && <Check className="size-4" />}
                 </DropdownMenuItem>
-              ))
-            ) : (
-              <DropdownMenuItem disabled>Belum ada cabang</DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <div className="hidden md:flex h-10 items-center gap-2 rounded-xl border px-3 text-sm font-medium">
+            <span className="size-2 rounded-full bg-primary" />
+            {activeBranchName}
+          </div>
+        )}
 
         <div className="hidden md:flex items-center gap-2 rounded-xl border px-3 h-10 bg-card">
           {online ? (

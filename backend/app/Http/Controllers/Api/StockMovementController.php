@@ -19,16 +19,24 @@ class StockMovementController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $paginator = $this->stockMovementService->paginate($request->only([
+        $filters = $request->only([
             'search', 'type', 'product_id', 'warehouse_id', 'sort', 'direction', 'per_page',
-        ]))->through(fn (StockMovement $movement) => new StockMovementResource($movement));
+        ]);
+        $filters['branch_id'] = $this->resolveBranchId($request);
+
+        $paginator = $this->stockMovementService->paginate($filters)
+            ->through(fn (StockMovement $movement) => new StockMovementResource($movement));
 
         return $this->paginated($paginator);
     }
 
     public function store(StoreStockMovementRequest $request): JsonResponse
     {
-        $movement = $this->stockMovementService->record($request->validated(), $request->user()->id);
+        $movement = $this->stockMovementService->record(
+            $request->validated(),
+            $request->user()->id,
+            $this->resolveBranchId($request),
+        );
 
         return $this->success(new StockMovementResource($movement), 'Pergerakan stok berhasil dicatat', 201);
     }
@@ -36,7 +44,7 @@ class StockMovementController extends Controller
     public function show(StockMovement $stockMovement): JsonResponse
     {
         return $this->success(new StockMovementResource(
-            $stockMovement->load(['product', 'warehouse', 'fromWarehouse', 'toWarehouse', 'user']),
+            $stockMovement->load(['product', 'warehouse', 'fromWarehouse', 'toWarehouse', 'user', 'branch']),
         ));
     }
 }

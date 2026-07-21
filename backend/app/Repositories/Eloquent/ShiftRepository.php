@@ -12,7 +12,7 @@ class ShiftRepository implements ShiftRepositoryInterface
 
     public function paginate(array $filters): LengthAwarePaginator
     {
-        $query = Shift::query()->with(['user']);
+        $query = Shift::query()->with(['user', 'branch']);
 
         if (! empty($filters['user_id'])) {
             $query->where('user_id', $filters['user_id']);
@@ -20,6 +20,10 @@ class ShiftRepository implements ShiftRepositoryInterface
 
         if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
+        }
+
+        if (! empty($filters['branch_id'])) {
+            $query->where('branch_id', $filters['branch_id']);
         }
 
         $sort = in_array($filters['sort'] ?? null, self::SORTABLE, true) ? $filters['sort'] : 'opened_at';
@@ -32,7 +36,7 @@ class ShiftRepository implements ShiftRepositoryInterface
 
     public function find(int $id): ?Shift
     {
-        return Shift::with(['user'])->find($id);
+        return Shift::with(['user', 'branch'])->find($id);
     }
 
     public function findOpenForUser(int $userId): ?Shift
@@ -44,13 +48,13 @@ class ShiftRepository implements ShiftRepositoryInterface
     {
         $shift = Shift::create($data);
 
-        return $shift->fresh(['user']);
+        return $shift->fresh(['user', 'branch']);
     }
 
     public function save(Shift $shift): Shift
     {
         $shift->save();
 
-        return $shift->fresh(['user']);
+        return $shift->fresh(['user', 'branch']);
     }
 }

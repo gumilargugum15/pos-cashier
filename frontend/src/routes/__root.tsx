@@ -9,14 +9,17 @@ import {
   HeadContent,
 } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { toast } from "sonner";
 
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppSidebar } from "@/components/app-sidebar";
 import { TopBar } from "@/components/top-bar";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/contexts/auth-context";
+import { ActiveBranchProvider } from "@/contexts/active-branch-context";
 import { BluetoothPrinterProvider } from "@/contexts/bluetooth-printer-context";
 import { useAuth } from "@/hooks/use-auth";
+import { routePermissions } from "@/config/navigation";
 
 function NotFoundComponent() {
   return (
@@ -124,9 +127,11 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <HeadContent />
       <AuthProvider>
-        <BluetoothPrinterProvider>
-          <AuthGate />
-        </BluetoothPrinterProvider>
+        <ActiveBranchProvider>
+          <BluetoothPrinterProvider>
+            <AuthGate />
+          </BluetoothPrinterProvider>
+        </ActiveBranchProvider>
       </AuthProvider>
       <Toaster richColors position="top-right" />
     </QueryClientProvider>
@@ -136,10 +141,13 @@ function RootComponent() {
 const PUBLIC_PATHS = ["/login"];
 
 function AuthGate() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, hasPermission } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const isPublicPath = PUBLIC_PATHS.includes(location.pathname);
+  const requiredPermission = routePermissions[location.pathname];
+  const isForbidden =
+    isAuthenticated && !!requiredPermission && !hasPermission(requiredPermission);
 
   useEffect(() => {
     if (isLoading) return;
@@ -151,7 +159,12 @@ function AuthGate() {
     if (isAuthenticated && isPublicPath) {
       navigate({ to: "/" });
     }
-  }, [isLoading, isAuthenticated, isPublicPath, navigate]);
+
+    if (isForbidden) {
+      toast.error("Anda tidak memiliki akses ke halaman ini");
+      navigate({ to: "/" });
+    }
+  }, [isLoading, isAuthenticated, isPublicPath, isForbidden, navigate]);
 
   if (isLoading) {
     return (
@@ -165,7 +178,7 @@ function AuthGate() {
     return <Outlet />;
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || isForbidden) {
     return null;
   }
 

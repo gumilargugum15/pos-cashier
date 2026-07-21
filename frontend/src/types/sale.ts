@@ -14,6 +14,8 @@ export type SaleItem = {
 export type Sale = {
   id: number;
   invoice_number: string;
+  branch_id: number | null;
+  branch_name: string | null;
   customer: { id: number; name: string } | null;
   cashier_name: string | null;
   items: SaleItem[];
@@ -29,6 +31,7 @@ export type Sale = {
 };
 
 export type CheckoutPayload = {
+  branch_id?: number | null;
   customer_id?: number | null;
   items: { product_id: number; qty: number }[];
   payment_method: PaymentMethod;
@@ -40,6 +43,7 @@ export type SaleListParams = {
   status?: "" | Sale["status"];
   payment_method?: "" | PaymentMethod;
   customer_id?: number | "";
+  branch_id?: number | "";
   sort?: "invoice_number" | "grand_total" | "status" | "created_at";
   direction?: "asc" | "desc";
   per_page?: number;

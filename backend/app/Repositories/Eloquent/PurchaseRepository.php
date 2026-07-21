@@ -14,7 +14,7 @@ class PurchaseRepository implements PurchaseRepositoryInterface
 
     public function paginate(array $filters): LengthAwarePaginator
     {
-        $query = Purchase::query()->with(['supplier', 'creator', 'items']);
+        $query = Purchase::query()->with(['supplier', 'creator', 'items', 'branch']);
 
         if (! empty($filters['search'])) {
             $search = $filters['search'];
@@ -36,6 +36,10 @@ class PurchaseRepository implements PurchaseRepositoryInterface
             $query->where('supplier_id', $filters['supplier_id']);
         }
 
+        if (! empty($filters['branch_id'])) {
+            $query->where('branch_id', $filters['branch_id']);
+        }
+
         if (! empty($filters['date_from'])) {
             $query->whereDate('created_at', '>=', $filters['date_from']);
         }
@@ -54,7 +58,7 @@ class PurchaseRepository implements PurchaseRepositoryInterface
 
     public function find(int $id): ?Purchase
     {
-        return Purchase::with(['supplier', 'creator', 'items'])->find($id);
+        return Purchase::with(['supplier', 'creator', 'items', 'branch'])->find($id);
     }
 
     public function countForToday(): int
@@ -71,7 +75,7 @@ class PurchaseRepository implements PurchaseRepositoryInterface
                 $purchase->items()->create($item);
             }
 
-            return $purchase->fresh(['supplier', 'creator', 'items']);
+            return $purchase->fresh(['supplier', 'creator', 'items', 'branch']);
         });
     }
 
@@ -85,7 +89,7 @@ class PurchaseRepository implements PurchaseRepositoryInterface
                 $purchase->items()->create($item);
             }
 
-            return $purchase->fresh(['supplier', 'creator', 'items']);
+            return $purchase->fresh(['supplier', 'creator', 'items', 'branch']);
         });
     }
 
@@ -93,7 +97,7 @@ class PurchaseRepository implements PurchaseRepositoryInterface
     {
         $purchase->save();
 
-        return $purchase->fresh(['supplier', 'creator', 'items']);
+        return $purchase->fresh(['supplier', 'creator', 'items', 'branch']);
     }
 
     public function delete(Purchase $purchase): void

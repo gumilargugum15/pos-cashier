@@ -10,6 +10,7 @@ type AuthContextValue = {
   login: (payload: LoginPayload) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (user: User) => void;
+  hasPermission: (permission: string) => boolean;
 };
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
@@ -54,9 +55,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(updatedUser);
   }, []);
 
+  const hasPermission = useCallback(
+    (permission: string) => user?.permissions.includes(permission) ?? false,
+    [user],
+  );
+
   return (
     <AuthContext.Provider
-      value={{ user, isLoading, isAuthenticated: !!user, login, logout, updateUser }}
+      value={{ user, isLoading, isAuthenticated: !!user, login, logout, updateUser, hasPermission }}
     >
       {children}
     </AuthContext.Provider>

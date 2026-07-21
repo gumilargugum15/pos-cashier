@@ -29,6 +29,7 @@ import { createUserColumns } from "@/components/users/user-columns";
 import { UserFormDialog } from "@/components/users/user-form-dialog";
 import { useDeleteUser, useUsers } from "@/hooks/use-users";
 import { useRoles } from "@/hooks/use-roles";
+import { useBranches } from "@/hooks/use-branches";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useAuth } from "@/hooks/use-auth";
 import type { User } from "@/types/auth";
@@ -46,6 +47,7 @@ function UsersPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"" | "0" | "1">("");
   const [roleFilter, setRoleFilter] = useState("");
+  const [branchFilter, setBranchFilter] = useState<number | "">("");
   const [page, setPage] = useState(1);
   const [sorting, setSorting] = useState<SortingState>([{ id: "name", desc: false }]);
   const [formOpen, setFormOpen] = useState(false);
@@ -54,11 +56,13 @@ function UsersPage() {
 
   const debouncedSearch = useDebouncedValue(search, 400);
   const { data: rolesData } = useRoles();
+  const { data: branchesData } = useBranches({ is_active: "1", per_page: 100 });
 
   const params: UserListParams = {
     search: debouncedSearch || undefined,
     is_active: statusFilter || undefined,
     role: roleFilter || undefined,
+    branch_id: branchFilter || undefined,
     sort: (sorting[0]?.id as UserListParams["sort"]) ?? "name",
     direction: sorting[0]?.desc ? "desc" : "asc",
     per_page: 15,
@@ -126,6 +130,26 @@ function UsersPage() {
                 {rolesData?.data.map((role) => (
                   <SelectItem key={role.id} value={role.name}>
                     {role.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={branchFilter ? String(branchFilter) : "all"}
+              onValueChange={(value) => {
+                setBranchFilter(value === "all" ? "" : Number(value));
+                setPage(1);
+              }}
+            >
+              <SelectTrigger className="w-40 h-10 rounded-xl">
+                <SelectValue placeholder="Cabang" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua Cabang</SelectItem>
+                {branchesData?.data.map((branch) => (
+                  <SelectItem key={branch.id} value={String(branch.id)}>
+                    {branch.name}
                   </SelectItem>
                 ))}
               </SelectContent>

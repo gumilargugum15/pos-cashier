@@ -28,9 +28,9 @@ class SaleService
         return $this->sales->find($id);
     }
 
-    public function checkout(array $data, int $cashierId): Sale
+    public function checkout(array $data, int $cashierId, ?int $branchId = null): Sale
     {
-        return DB::transaction(function () use ($data, $cashierId) {
+        return DB::transaction(function () use ($data, $cashierId, $branchId) {
             $products = Product::whereIn('id', collect($data['items'])->pluck('product_id'))
                 ->lockForUpdate()
                 ->get()
@@ -96,6 +96,7 @@ class SaleService
 
             $sale = $this->sales->create([
                 'invoice_number' => $this->generateInvoiceNumber(),
+                'branch_id' => $branchId,
                 'customer_id' => $data['customer_id'] ?? null,
                 'user_id' => $cashierId,
                 'subtotal' => round($subtotal, 2),

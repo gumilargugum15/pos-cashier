@@ -17,6 +17,8 @@ class PurchaseResource extends JsonResource
         return [
             'id' => $this->id,
             'purchase_number' => $this->purchase_number,
+            'branch_id' => $this->branch_id,
+            'branch_name' => $this->whenLoaded('branch', fn () => $this->branch?->name),
             'supplier' => $this->whenLoaded('supplier', fn () => $this->supplier ? [
                 'id' => $this->supplier->id,
                 'name' => $this->supplier->name,

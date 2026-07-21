@@ -21,23 +21,31 @@ class PurchaseController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $paginator = $this->purchaseService->paginate($request->only([
+        $filters = $request->only([
             'search', 'status', 'payment_status', 'supplier_id', 'sort', 'direction', 'per_page',
-        ]))->through(fn (Purchase $purchase) => new PurchaseResource($purchase));
+        ]);
+        $filters['branch_id'] = $this->resolveBranchId($request);
+
+        $paginator = $this->purchaseService->paginate($filters)
+            ->through(fn (Purchase $purchase) => new PurchaseResource($purchase));
 
         return $this->paginated($paginator);
     }
 
     public function store(StorePurchaseRequest $request): JsonResponse
     {
-        $purchase = $this->purchaseService->create($request->validated(), $request->user()->id);
+        $purchase = $this->purchaseService->create(
+            $request->validated(),
+            $request->user()->id,
+            $this->resolveBranchId($request),
+        );
 
         return $this->success(new PurchaseResource($purchase), 'Pembelian berhasil dibuat', 201);
     }
 
     public function show(Purchase $purchase): JsonResponse
     {
-        return $this->success(new PurchaseResource($purchase->load(['supplier', 'creator', 'items'])));
+        return $this->success(new PurchaseResource($purchase->load(['supplier', 'creator', 'items', 'branch'])));
     }
 
     public function update(UpdatePurchaseRequest $request, Purchase $purchase): JsonResponse

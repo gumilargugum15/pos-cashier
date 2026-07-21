@@ -11,9 +11,10 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
-import { navGroups } from "@/components/app-sidebar";
+import { navGroups } from "@/config/navigation";
 import { listCustomers } from "@/api/customers";
 import { listProducts } from "@/api/products";
+import { useAuth } from "@/hooks/use-auth";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { formatRupiah } from "@/lib/format-currency";
 
@@ -27,6 +28,7 @@ export function CommandPalette({
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebouncedValue(query, 300);
   const navigate = useNavigate();
+  const { hasPermission } = useAuth();
 
   useEffect(() => {
     if (!open) {
@@ -55,6 +57,7 @@ export function CommandPalette({
 
   const filteredNav = navGroups
     .flatMap((group) => group.items)
+    .filter((item) => !item.permission || hasPermission(item.permission))
     .filter((item) => !hasQuery || item.title.toLowerCase().includes(debouncedQuery.toLowerCase()));
 
   return (

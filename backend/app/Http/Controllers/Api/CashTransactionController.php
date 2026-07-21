@@ -19,17 +19,22 @@ class CashTransactionController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $paginator = $this->cashTransactionService->paginate(
-            $request->only(['search', 'shift_id', 'type', 'category', 'sort', 'direction', 'per_page', 'date_from', 'date_to']),
-            $request->user(),
-        )->through(fn (CashTransaction $transaction) => new CashTransactionResource($transaction));
+        $filters = $request->only(['search', 'shift_id', 'type', 'category', 'sort', 'direction', 'per_page', 'date_from', 'date_to']);
+        $filters['branch_id'] = $this->resolveBranchId($request);
+
+        $paginator = $this->cashTransactionService->paginate($filters, $request->user())
+            ->through(fn (CashTransaction $transaction) => new CashTransactionResource($transaction));
 
         return $this->paginated($paginator);
     }
 
     public function store(StoreCashTransactionRequest $request): JsonResponse
     {
-        $transaction = $this->cashTransactionService->record($request->validated(), $request->user());
+        $transaction = $this->cashTransactionService->record(
+            $request->validated(),
+            $request->user(),
+            $this->resolveBranchId($request),
+        );
 
         return $this->success(
             new CashTransactionResource($transaction),
