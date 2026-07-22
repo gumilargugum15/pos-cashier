@@ -19,23 +19,31 @@ class SaleController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $paginator = $this->saleService->paginate($request->only([
+        $filters = $request->only([
             'search', 'status', 'payment_method', 'customer_id', 'sort', 'direction', 'per_page',
-        ]))->through(fn (Sale $sale) => new SaleResource($sale));
+        ]);
+        $filters['branch_id'] = $this->resolveBranchId($request);
+
+        $paginator = $this->saleService->paginate($filters)
+            ->through(fn (Sale $sale) => new SaleResource($sale));
 
         return $this->paginated($paginator);
     }
 
     public function store(StoreSaleRequest $request): JsonResponse
     {
-        $sale = $this->saleService->checkout($request->validated(), $request->user()->id);
+        $sale = $this->saleService->checkout(
+            $request->validated(),
+            $request->user()->id,
+            $this->resolveBranchId($request),
+        );
 
         return $this->success(new SaleResource($sale), 'Transaksi berhasil disimpan', 201);
     }
 
     public function show(Sale $sale): JsonResponse
     {
-        return $this->success(new SaleResource($sale->load(['customer', 'cashier', 'items'])));
+        return $this->success(new SaleResource($sale->load(['customer', 'cashier', 'items', 'branch'])));
     }
 
     public function refund(Sale $sale): JsonResponse

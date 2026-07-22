@@ -3,6 +3,8 @@ export type StockMovementType = "in" | "out" | "adjustment" | "transfer";
 export type StockMovement = {
   id: number;
   reference_number: string;
+  branch_id: number | null;
+  branch_name: string | null;
   product: { id: number; name: string; sku: string } | null;
   type: StockMovementType;
   quantity: number;
@@ -21,6 +23,7 @@ export type StockMovementListParams = {
   type?: "" | StockMovementType;
   product_id?: number | "";
   warehouse_id?: number | "";
+  branch_id?: number | "";
   sort?: "reference_number" | "type" | "quantity" | "created_at";
   direction?: "asc" | "desc";
   per_page?: number;
@@ -28,6 +31,7 @@ export type StockMovementListParams = {
 };
 
 export type StockMovementPayload = {
+  branch_id?: number | null;
   product_id: number;
   type: StockMovementType;
   quantity?: number;

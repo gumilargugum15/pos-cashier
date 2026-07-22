@@ -16,6 +16,7 @@ import { createCashTransactionColumns } from "@/components/finance/cash-transact
 import { useCurrentDrawer, useShifts } from "@/hooks/use-shifts";
 import { useCashTransactions } from "@/hooks/use-cash-transactions";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useActiveBranch } from "@/hooks/use-active-branch";
 
 export const Route = createFileRoute("/finance")({
   head: () => ({
@@ -30,6 +31,7 @@ function FinancePage() {
   const [transactionDialogOpen, setTransactionDialogOpen] = useState(false);
 
   const { data: drawer } = useCurrentDrawer();
+  const { effectiveBranchId } = useActiveBranch();
 
   const [txSearch, setTxSearch] = useState("");
   const [txPage, setTxPage] = useState(1);
@@ -42,6 +44,7 @@ function FinancePage() {
     isError: transactionsError,
   } = useCashTransactions({
     search: debouncedTxSearch || undefined,
+    branch_id: effectiveBranchId ?? undefined,
     sort: (txSorting[0]?.id as never) ?? "created_at",
     direction: txSorting[0]?.desc ? "desc" : "asc",
     per_page: 15,
@@ -56,6 +59,7 @@ function FinancePage() {
     isLoading: shiftsLoading,
     isError: shiftsError,
   } = useShifts({
+    branch_id: effectiveBranchId ?? undefined,
     sort: (shiftSorting[0]?.id as never) ?? "opened_at",
     direction: shiftSorting[0]?.desc ? "desc" : "asc",
     per_page: 15,

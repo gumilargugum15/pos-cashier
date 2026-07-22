@@ -19,6 +19,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useCreateCashTransaction } from "@/hooks/use-cash-transactions";
+import { useActiveBranch } from "@/hooks/use-active-branch";
 import { cn } from "@/lib/utils";
 import type { CashTransactionCategory, CashTransactionType } from "@/types/cash-transaction";
 
@@ -47,6 +48,7 @@ export function CashTransactionDialog({ open, onOpenChange }: CashTransactionDia
   const [amount, setAmount] = useState(0);
   const [description, setDescription] = useState("");
   const createTransaction = useCreateCashTransaction();
+  const { effectiveBranchId } = useActiveBranch();
 
   function reset() {
     setType("in");
@@ -62,7 +64,13 @@ export function CashTransactionDialog({ open, onOpenChange }: CashTransactionDia
 
   async function handleSubmit() {
     if (amount <= 0 || !description.trim()) return;
-    await createTransaction.mutateAsync({ type, category, amount, description });
+    await createTransaction.mutateAsync({
+      branch_id: effectiveBranchId,
+      type,
+      category,
+      amount,
+      description,
+    });
     reset();
     onOpenChange(false);
   }

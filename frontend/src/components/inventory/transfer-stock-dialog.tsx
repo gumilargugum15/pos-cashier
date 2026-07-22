@@ -15,6 +15,7 @@ import {
 import { ProductCombobox } from "@/components/purchases/product-combobox";
 import { WarehouseSelect } from "@/components/inventory/warehouse-select";
 import { useCreateStockMovement } from "@/hooks/use-stock-movements";
+import { useActiveBranch } from "@/hooks/use-active-branch";
 import type { Product } from "@/types/product";
 
 type TransferStockDialogProps = {
@@ -29,6 +30,7 @@ export function TransferStockDialog({ open, onOpenChange }: TransferStockDialogP
   const [toWarehouseId, setToWarehouseId] = useState<number | null>(null);
   const [reason, setReason] = useState("");
   const createMovement = useCreateStockMovement();
+  const { effectiveBranchId } = useActiveBranch();
 
   const sameWarehouse = !!fromWarehouseId && !!toWarehouseId && fromWarehouseId === toWarehouseId;
   const canSubmit =
@@ -46,6 +48,7 @@ export function TransferStockDialog({ open, onOpenChange }: TransferStockDialogP
     if (!canSubmit || !product || !fromWarehouseId || !toWarehouseId) return;
 
     await createMovement.mutateAsync({
+      branch_id: effectiveBranchId,
       product_id: product.id,
       type: "transfer",
       quantity,

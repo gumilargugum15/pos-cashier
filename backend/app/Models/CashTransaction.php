@@ -13,6 +13,7 @@ class CashTransaction extends Model
 
     protected $fillable = [
         'reference_number',
+        'branch_id',
         'shift_id',
         'type',
         'category',
@@ -31,6 +32,11 @@ class CashTransaction extends Model
     public function shift(): BelongsTo
     {
         return $this->belongsTo(Shift::class);
+    }
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
     }
 
     public function user(): BelongsTo

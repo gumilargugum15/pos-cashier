@@ -35,6 +35,7 @@ import {
   useReceivePurchase,
 } from "@/hooks/use-purchases";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useActiveBranch } from "@/hooks/use-active-branch";
 import type { Purchase, PurchaseListParams } from "@/types/purchase";
 
 export const Route = createFileRoute("/purchases")({
@@ -59,11 +60,13 @@ function PurchasesPage() {
   const [cancellingPurchase, setCancellingPurchase] = useState<Purchase | null>(null);
 
   const debouncedSearch = useDebouncedValue(search, 400);
+  const { effectiveBranchId } = useActiveBranch();
 
   const params: PurchaseListParams = {
     search: debouncedSearch || undefined,
     status: statusFilter || undefined,
     payment_status: paymentStatusFilter || undefined,
+    branch_id: effectiveBranchId ?? undefined,
     sort: (sorting[0]?.id as PurchaseListParams["sort"]) ?? "created_at",
     direction: sorting[0]?.desc ? "desc" : "asc",
     per_page: 15,

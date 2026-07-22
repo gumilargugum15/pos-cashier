@@ -22,6 +22,13 @@ export function createCashTransactionColumns(): ColumnDef<CashTransaction>[] {
       ),
     },
     {
+      id: "branch",
+      header: "Cabang",
+      cell: ({ row }) => (
+        <span className="text-muted-foreground">{row.original.branch_name ?? "—"}</span>
+      ),
+    },
+    {
       accessorKey: "type",
       header: "Tipe",
       cell: ({ row }) => (

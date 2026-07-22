@@ -13,6 +13,8 @@ export type PurchaseItem = {
 export type Purchase = {
   id: number;
   purchase_number: string;
+  branch_id: number | null;
+  branch_name: string | null;
   supplier: { id: number; name: string } | null;
   creator_name: string | null;
   items: PurchaseItem[];
@@ -36,6 +38,7 @@ export type PurchaseListParams = {
   status?: "" | PurchaseStatus;
   payment_status?: "" | PurchasePaymentStatus;
   supplier_id?: number | "";
+  branch_id?: number | "";
   sort?: "purchase_number" | "grand_total" | "status" | "payment_status" | "created_at";
   direction?: "asc" | "desc";
   per_page?: number;
@@ -43,6 +46,7 @@ export type PurchaseListParams = {
 };
 
 export type PurchasePayload = {
+  branch_id?: number | null;
   supplier_id: number;
   items: { product_id: number; qty: number; cost_price: number }[];
   discount_percentage?: number;

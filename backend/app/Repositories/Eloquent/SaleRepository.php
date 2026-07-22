@@ -14,7 +14,7 @@ class SaleRepository implements SaleRepositoryInterface
 
     public function paginate(array $filters): LengthAwarePaginator
     {
-        $query = Sale::query()->with(['customer', 'cashier', 'items']);
+        $query = Sale::query()->with(['customer', 'cashier', 'items', 'branch']);
 
         if (! empty($filters['search'])) {
             $query->where('invoice_number', 'like', "%{$filters['search']}%");
@@ -30,6 +30,10 @@ class SaleRepository implements SaleRepositoryInterface
 
         if (! empty($filters['customer_id'])) {
             $query->where('customer_id', $filters['customer_id']);
+        }
+
+        if (! empty($filters['branch_id'])) {
+            $query->where('branch_id', $filters['branch_id']);
         }
 
         if (! empty($filters['date_from'])) {
@@ -50,7 +54,7 @@ class SaleRepository implements SaleRepositoryInterface
 
     public function find(int $id): ?Sale
     {
-        return Sale::with(['customer', 'cashier', 'items'])->find($id);
+        return Sale::with(['customer', 'cashier', 'items', 'branch'])->find($id);
     }
 
     public function countForToday(): int
@@ -67,7 +71,7 @@ class SaleRepository implements SaleRepositoryInterface
                 $sale->items()->create($item);
             }
 
-            return $sale->fresh(['customer', 'cashier', 'items']);
+            return $sale->fresh(['customer', 'cashier', 'items', 'branch']);
         });
     }
 
@@ -75,7 +79,7 @@ class SaleRepository implements SaleRepositoryInterface
     {
         $sale->save();
 
-        return $sale->fresh(['customer', 'cashier', 'items']);
+        return $sale->fresh(['customer', 'cashier', 'items', 'branch']);
     }
 
     public function totalForDate(\DateTimeInterface $date): float

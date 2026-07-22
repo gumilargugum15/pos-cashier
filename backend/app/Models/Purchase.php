@@ -15,6 +15,7 @@ class Purchase extends Model
 
     protected $fillable = [
         'purchase_number',
+        'branch_id',
         'supplier_id',
         'user_id',
         'status',
@@ -42,6 +43,11 @@ class Purchase extends Model
             'paid_amount' => 'decimal:2',
             'received_at' => 'datetime',
         ];
+    }
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
     }
 
     public function supplier(): BelongsTo

@@ -20,10 +20,11 @@ class ShiftController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $paginator = $this->shiftService->paginate(
-            $request->only(['user_id', 'status', 'sort', 'direction', 'per_page']),
-            $request->user(),
-        )->through(fn (Shift $shift) => new ShiftResource($shift));
+        $filters = $request->only(['user_id', 'status', 'sort', 'direction', 'per_page']);
+        $filters['branch_id'] = $this->resolveBranchId($request);
+
+        $paginator = $this->shiftService->paginate($filters, $request->user())
+            ->through(fn (Shift $shift) => new ShiftResource($shift));
 
         return $this->paginated($paginator);
     }
@@ -34,9 +35,10 @@ class ShiftController extends Controller
             $request->user(),
             (float) $request->validated('opening_balance'),
             $request->validated('notes'),
+            $this->resolveBranchId($request),
         );
 
-        return $this->success(new ShiftResource($shift->load('user')), 'Shift berhasil dibuka', 201);
+        return $this->success(new ShiftResource($shift->load(['user', 'branch'])), 'Shift berhasil dibuka', 201);
     }
 
     public function current(Request $request): JsonResponse
@@ -48,14 +50,14 @@ class ShiftController extends Controller
         }
 
         return $this->success([
-            'shift' => new ShiftResource($shift->load('user')),
+            'shift' => new ShiftResource($shift->load(['user', 'branch'])),
             'live' => $this->shiftService->liveSummary($shift),
         ]);
     }
 
     public function show(Request $request, Shift $shift): JsonResponse
     {
-        $shift = $this->shiftService->show($shift->load('user'), $request->user());
+        $shift = $this->shiftService->show($shift->load(['user', 'branch']), $request->user());
 
         return $this->success(new ShiftResource($shift));
     }

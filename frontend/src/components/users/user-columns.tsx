@@ -44,6 +44,14 @@ export function createUserColumns({ onEdit, onDelete }: UserColumnHandlers): Col
       ),
     },
     {
+      id: "branch",
+      header: "Cabang",
+      enableSorting: false,
+      cell: ({ row }) => (
+        <span className="text-muted-foreground">{row.original.branch_name ?? "Semua Cabang"}</span>
+      ),
+    },
+    {
       accessorKey: "is_active",
       header: "Status",
       cell: ({ row }) => (

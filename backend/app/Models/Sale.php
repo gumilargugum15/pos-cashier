@@ -14,6 +14,7 @@ class Sale extends Model
 
     protected $fillable = [
         'invoice_number',
+        'branch_id',
         'customer_id',
         'user_id',
         'subtotal',
@@ -36,6 +37,11 @@ class Sale extends Model
             'paid_amount' => 'decimal:2',
             'change_amount' => 'decimal:2',
         ];
+    }
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
     }
 
     public function customer(): BelongsTo

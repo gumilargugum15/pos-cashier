@@ -12,7 +12,7 @@ class StockMovementRepository implements StockMovementRepositoryInterface
 
     public function paginate(array $filters): LengthAwarePaginator
     {
-        $query = StockMovement::query()->with(['product', 'warehouse', 'fromWarehouse', 'toWarehouse', 'user']);
+        $query = StockMovement::query()->with(['product', 'warehouse', 'fromWarehouse', 'toWarehouse', 'user', 'branch']);
 
         if (! empty($filters['search'])) {
             $search = $filters['search'];
@@ -28,6 +28,10 @@ class StockMovementRepository implements StockMovementRepositoryInterface
 
         if (! empty($filters['product_id'])) {
             $query->where('product_id', $filters['product_id']);
+        }
+
+        if (! empty($filters['branch_id'])) {
+            $query->where('branch_id', $filters['branch_id']);
         }
 
         if (! empty($filters['warehouse_id'])) {
@@ -57,7 +61,7 @@ class StockMovementRepository implements StockMovementRepositoryInterface
 
     public function find(int $id): ?StockMovement
     {
-        return StockMovement::with(['product', 'warehouse', 'fromWarehouse', 'toWarehouse', 'user'])->find($id);
+        return StockMovement::with(['product', 'warehouse', 'fromWarehouse', 'toWarehouse', 'user', 'branch'])->find($id);
     }
 
     public function countForToday(): int
@@ -69,7 +73,7 @@ class StockMovementRepository implements StockMovementRepositoryInterface
     {
         $movement = StockMovement::create($data);
 
-        return $movement->fresh(['product', 'warehouse', 'fromWarehouse', 'toWarehouse', 'user']);
+        return $movement->fresh(['product', 'warehouse', 'fromWarehouse', 'toWarehouse', 'user', 'branch']);
     }
 
     public function movementReportSummary(\DateTimeInterface $from, \DateTimeInterface $to): array

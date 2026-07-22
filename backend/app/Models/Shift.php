@@ -14,6 +14,7 @@ class Shift extends Model
 
     protected $fillable = [
         'user_id',
+        'branch_id',
         'opening_balance',
         'closing_balance',
         'expected_balance',
@@ -39,6 +40,11 @@ class Shift extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
     }
 
     public function cashTransactions(): HasMany

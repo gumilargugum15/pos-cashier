@@ -4,6 +4,8 @@ export type CashTransactionCategory = "income" | "deposit" | "expense" | "withdr
 export type CashTransaction = {
   id: number;
   reference_number: string;
+  branch_id: number | null;
+  branch_name: string | null;
   shift_id: number;
   type: CashTransactionType;
   category: CashTransactionCategory;
@@ -18,6 +20,7 @@ export type CashTransactionListParams = {
   shift_id?: number | "";
   type?: "" | CashTransactionType;
   category?: "" | CashTransactionCategory;
+  branch_id?: number | "";
   sort?: "reference_number" | "type" | "amount" | "created_at";
   direction?: "asc" | "desc";
   per_page?: number;
@@ -27,6 +30,7 @@ export type CashTransactionListParams = {
 };
 
 export type CashTransactionPayload = {
+  branch_id?: number | null;
   type: CashTransactionType;
   category: CashTransactionCategory;
   amount: number;

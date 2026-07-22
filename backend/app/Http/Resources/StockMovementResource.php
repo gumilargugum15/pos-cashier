@@ -17,6 +17,8 @@ class StockMovementResource extends JsonResource
         return [
             'id' => $this->id,
             'reference_number' => $this->reference_number,
+            'branch_id' => $this->branch_id,
+            'branch_name' => $this->whenLoaded('branch', fn () => $this->branch?->name),
             'product' => $this->whenLoaded('product', fn () => $this->product ? [
                 'id' => $this->product->id,
                 'name' => $this->product->name,

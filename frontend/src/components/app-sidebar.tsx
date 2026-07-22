@@ -1,78 +1,9 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import {
-  LayoutDashboard,
-  ScanLine,
-  Package,
-  Tag,
-  Award,
-  Ruler,
-  Users,
-  Truck,
-  ShoppingCart,
-  Receipt,
-  Warehouse,
-  SlidersHorizontal,
-  ArrowLeftRight,
-  BarChart3,
-  Wallet,
-  UserCog,
-  Settings,
-  Sparkles,
-} from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSettings } from "@/hooks/use-settings";
-
-type Item = {
-  title: string;
-  url: string;
-  icon: React.ComponentType<{ className?: string }>;
-  badge?: string;
-};
-
-export const navGroups: { label: string; items: Item[] }[] = [
-  {
-    label: "Overview",
-    items: [
-      { title: "Dashboard", url: "/", icon: LayoutDashboard },
-      { title: "POS / Cashier", url: "/pos", icon: ScanLine, badge: "F2" },
-    ],
-  },
-  {
-    label: "Catalog",
-    items: [
-      { title: "Products", url: "/products", icon: Package },
-      { title: "Categories", url: "/categories", icon: Tag },
-      { title: "Brands", url: "/brands", icon: Award },
-      { title: "Units", url: "/units", icon: Ruler },
-      { title: "Customers", url: "/customers", icon: Users },
-      { title: "Suppliers", url: "/suppliers", icon: Truck },
-    ],
-  },
-  {
-    label: "Operations",
-    items: [
-      { title: "Purchases", url: "/purchases", icon: ShoppingCart },
-      { title: "Sales", url: "/sales", icon: Receipt },
-      { title: "Inventory", url: "/inventory", icon: Warehouse },
-      { title: "Stock Adjustment", url: "/stock-adjustment", icon: SlidersHorizontal },
-      { title: "Transfer Stock", url: "/transfer-stock", icon: ArrowLeftRight },
-    ],
-  },
-  {
-    label: "Insights",
-    items: [
-      { title: "Reports", url: "/reports", icon: BarChart3 },
-      { title: "Finance", url: "/finance", icon: Wallet },
-    ],
-  },
-  {
-    label: "System",
-    items: [
-      { title: "Users", url: "/users", icon: UserCog },
-      { title: "Settings", url: "/settings", icon: Settings },
-    ],
-  },
-];
+import { useAuth } from "@/hooks/use-auth";
+import { navGroups } from "@/config/navigation";
 
 type AppSidebarProps = {
   className?: string;
@@ -82,6 +13,14 @@ type AppSidebarProps = {
 export function AppSidebar({ className, onNavigate }: AppSidebarProps = {}) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { data: settings } = useSettings();
+  const { hasPermission } = useAuth();
+
+  const visibleGroups = navGroups
+    .map((g) => ({
+      ...g,
+      items: g.items.filter((item) => !item.permission || hasPermission(item.permission)),
+    }))
+    .filter((g) => g.items.length > 0);
 
   return (
     <aside
@@ -102,7 +41,7 @@ export function AppSidebar({ className, onNavigate }: AppSidebarProps = {}) {
         </div>
       </div>
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
-        {navGroups.map((g) => (
+        {visibleGroups.map((g) => (
           <div key={g.label}>
             <div className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
               {g.label}

@@ -30,7 +30,7 @@ class CashTransactionService
         return $this->cashTransactions->paginate($filters);
     }
 
-    public function record(array $data, User $actingUser): CashTransaction
+    public function record(array $data, User $actingUser, ?int $branchId = null): CashTransaction
     {
         $shift = $this->shifts->findOpenForUser($actingUser->id);
 
@@ -52,6 +52,7 @@ class CashTransactionService
 
         return $this->cashTransactions->create([
             'reference_number' => $this->generateReferenceNumber(),
+            'branch_id' => $branchId,
             'shift_id' => $shift->id,
             'type' => $type,
             'category' => $category,

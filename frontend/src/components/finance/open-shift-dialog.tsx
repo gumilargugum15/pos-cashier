@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useOpenShift } from "@/hooks/use-shifts";
+import { useActiveBranch } from "@/hooks/use-active-branch";
 
 type OpenShiftDialogProps = {
   open: boolean;
@@ -22,6 +23,7 @@ export function OpenShiftDialog({ open, onOpenChange }: OpenShiftDialogProps) {
   const [openingBalance, setOpeningBalance] = useState(0);
   const [notes, setNotes] = useState("");
   const openShift = useOpenShift();
+  const { effectiveBranchId } = useActiveBranch();
 
   function reset() {
     setOpeningBalance(0);
@@ -29,7 +31,11 @@ export function OpenShiftDialog({ open, onOpenChange }: OpenShiftDialogProps) {
   }
 
   async function handleSubmit() {
-    await openShift.mutateAsync({ opening_balance: openingBalance, notes: notes || null });
+    await openShift.mutateAsync({
+      branch_id: effectiveBranchId,
+      opening_balance: openingBalance,
+      notes: notes || null,
+    });
     reset();
     onOpenChange(false);
   }

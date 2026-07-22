@@ -28,6 +28,7 @@ import { SupplierCombobox, type SupplierOption } from "@/components/purchases/su
 import { ProductCombobox } from "@/components/purchases/product-combobox";
 import { useCreatePurchase, useUpdatePurchase } from "@/hooks/use-purchases";
 import { useSettings } from "@/hooks/use-settings";
+import { useActiveBranch } from "@/hooks/use-active-branch";
 import { formatRupiah } from "@/lib/format-currency";
 import type { Product } from "@/types/product";
 import type { Purchase } from "@/types/purchase";
@@ -62,6 +63,7 @@ export function PurchaseFormDialog({ open, onOpenChange, purchase }: PurchaseFor
   const isSubmitting = createPurchase.isPending || updatePurchase.isPending;
   const [selectedSupplier, setSelectedSupplier] = useState<SupplierOption | null>(null);
   const { data: settings } = useSettings();
+  const { effectiveBranchId } = useActiveBranch();
   const defaultTaxPercentage = settings ? Number(settings.tax_percentage) : 11;
 
   const form = useForm<PurchaseFormValues>({
@@ -155,7 +157,7 @@ export function PurchaseFormDialog({ open, onOpenChange, purchase }: PurchaseFor
     if (isEditing && purchase) {
       await updatePurchase.mutateAsync({ id: purchase.id, payload });
     } else {
-      await createPurchase.mutateAsync(payload);
+      await createPurchase.mutateAsync({ ...payload, branch_id: effectiveBranchId });
     }
     onOpenChange(false);
   }

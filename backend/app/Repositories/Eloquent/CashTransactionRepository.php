@@ -12,7 +12,7 @@ class CashTransactionRepository implements CashTransactionRepositoryInterface
 
     public function paginate(array $filters): LengthAwarePaginator
     {
-        $query = CashTransaction::query()->with(['shift', 'user']);
+        $query = CashTransaction::query()->with(['shift', 'user', 'branch']);
 
         if (! empty($filters['search'])) {
             $query->where('reference_number', 'like', "%{$filters['search']}%");
@@ -34,6 +34,10 @@ class CashTransactionRepository implements CashTransactionRepositoryInterface
             $query->where('user_id', $filters['user_id']);
         }
 
+        if (! empty($filters['branch_id'])) {
+            $query->where('branch_id', $filters['branch_id']);
+        }
+
         if (! empty($filters['date_from'])) {
             $query->whereDate('created_at', '>=', $filters['date_from']);
         }
@@ -52,7 +56,7 @@ class CashTransactionRepository implements CashTransactionRepositoryInterface
 
     public function find(int $id): ?CashTransaction
     {
-        return CashTransaction::with(['shift', 'user'])->find($id);
+        return CashTransaction::with(['shift', 'user', 'branch'])->find($id);
     }
 
     public function countForToday(): int
@@ -64,7 +68,7 @@ class CashTransactionRepository implements CashTransactionRepositoryInterface
     {
         $transaction = CashTransaction::create($data);
 
-        return $transaction->fresh(['shift', 'user']);
+        return $transaction->fresh(['shift', 'user', 'branch']);
     }
 
     public function totalsForShift(int $shiftId): array

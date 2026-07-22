@@ -40,7 +40,7 @@ class ShiftService
         return $this->shifts->findOpenForUser($actingUser->id);
     }
 
-    public function open(User $actingUser, float $openingBalance, ?string $notes): Shift
+    public function open(User $actingUser, float $openingBalance, ?string $notes, ?int $branchId = null): Shift
     {
         if ($this->shifts->findOpenForUser($actingUser->id)) {
             throw ValidationException::withMessages([
@@ -50,6 +50,7 @@ class ShiftService
 
         return $this->shifts->create([
             'user_id' => $actingUser->id,
+            'branch_id' => $branchId,
             'opening_balance' => $openingBalance,
             'status' => 'open',
             'notes' => $notes,

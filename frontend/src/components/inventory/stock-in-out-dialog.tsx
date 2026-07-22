@@ -15,6 +15,7 @@ import {
 import { ProductCombobox } from "@/components/purchases/product-combobox";
 import { WarehouseSelect } from "@/components/inventory/warehouse-select";
 import { useCreateStockMovement } from "@/hooks/use-stock-movements";
+import { useActiveBranch } from "@/hooks/use-active-branch";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types/product";
 import type { StockMovementType } from "@/types/stock-movement";
@@ -31,6 +32,7 @@ export function StockInOutDialog({ open, onOpenChange }: StockInOutDialogProps) 
   const [warehouseId, setWarehouseId] = useState<number | null>(null);
   const [reason, setReason] = useState("");
   const createMovement = useCreateStockMovement();
+  const { effectiveBranchId } = useActiveBranch();
 
   function reset() {
     setType("in");
@@ -44,6 +46,7 @@ export function StockInOutDialog({ open, onOpenChange }: StockInOutDialogProps) 
     if (!product || quantity < 1) return;
 
     await createMovement.mutateAsync({
+      branch_id: effectiveBranchId,
       product_id: product.id,
       type,
       quantity,

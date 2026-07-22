@@ -15,6 +15,7 @@ import {
 import { ProductCombobox } from "@/components/purchases/product-combobox";
 import { WarehouseSelect } from "@/components/inventory/warehouse-select";
 import { useCreateStockMovement } from "@/hooks/use-stock-movements";
+import { useActiveBranch } from "@/hooks/use-active-branch";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types/product";
 
@@ -29,6 +30,7 @@ export function StockAdjustmentDialog({ open, onOpenChange }: StockAdjustmentDia
   const [warehouseId, setWarehouseId] = useState<number | null>(null);
   const [reason, setReason] = useState("");
   const createMovement = useCreateStockMovement();
+  const { effectiveBranchId } = useActiveBranch();
 
   const delta = product ? newStock - product.stock : 0;
 
@@ -48,6 +50,7 @@ export function StockAdjustmentDialog({ open, onOpenChange }: StockAdjustmentDia
     if (!product || newStock < 0) return;
 
     await createMovement.mutateAsync({
+      branch_id: effectiveBranchId,
       product_id: product.id,
       type: "adjustment",
       new_stock: newStock,

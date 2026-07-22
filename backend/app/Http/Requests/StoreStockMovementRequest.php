@@ -23,6 +23,7 @@ class StoreStockMovementRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'branch_id' => ['nullable', 'integer', 'exists:branches,id'],
             'product_id' => ['required', 'integer', 'exists:products,id'],
             'type' => ['required', 'in:in,out,adjustment,transfer'],
             'quantity' => ['required_if:type,in,out,transfer', 'integer', 'min:1'],

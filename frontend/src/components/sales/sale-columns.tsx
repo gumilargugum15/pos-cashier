@@ -62,6 +62,13 @@ export function createSaleColumns({ onView, onRefund }: SaleColumnHandlers): Col
       ),
     },
     {
+      id: "branch",
+      header: "Cabang",
+      cell: ({ row }) => (
+        <span className="text-muted-foreground">{row.original.branch_name ?? "—"}</span>
+      ),
+    },
+    {
       id: "payment_method",
       header: "Pembayaran",
       cell: ({ row }) => (

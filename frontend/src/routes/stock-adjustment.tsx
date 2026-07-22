@@ -12,6 +12,7 @@ import { createStockMovementColumns } from "@/components/inventory/stock-movemen
 import { StockAdjustmentDialog } from "@/components/inventory/stock-adjustment-dialog";
 import { useStockMovements } from "@/hooks/use-stock-movements";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useActiveBranch } from "@/hooks/use-active-branch";
 import type { StockMovementListParams } from "@/types/stock-movement";
 
 export const Route = createFileRoute("/stock-adjustment")({
@@ -28,10 +29,12 @@ function StockAdjustmentPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const debouncedSearch = useDebouncedValue(search, 400);
+  const { effectiveBranchId } = useActiveBranch();
 
   const params: StockMovementListParams = {
     search: debouncedSearch || undefined,
     type: "adjustment",
+    branch_id: effectiveBranchId ?? undefined,
     sort: (sorting[0]?.id as StockMovementListParams["sort"]) ?? "created_at",
     direction: sorting[0]?.desc ? "desc" : "asc",
     per_page: 15,

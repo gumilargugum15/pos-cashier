@@ -17,6 +17,8 @@ class CashTransactionResource extends JsonResource
         return [
             'id' => $this->id,
             'reference_number' => $this->reference_number,
+            'branch_id' => $this->branch_id,
+            'branch_name' => $this->whenLoaded('branch', fn () => $this->branch?->name),
             'shift_id' => $this->shift_id,
             'type' => $this->type,
             'category' => $this->category,
