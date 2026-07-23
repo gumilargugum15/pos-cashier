@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useBlocker } from "@tanstack/react-router";
 import {
   Search,
   ScanLine,
@@ -17,6 +17,16 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { CurrencyInput } from "@/components/currency-input";
 import { CustomerCombobox } from "@/components/pos/customer-combobox";
 import { PaymentMethodSelector } from "@/components/pos/payment-method-selector";
@@ -91,6 +101,13 @@ function POSPage() {
 
   const products = useMemo(() => productsData?.data ?? [], [productsData]);
   const categories = categoriesData?.data ?? [];
+
+  const transactionInProgress = cart.length > 0;
+  const leaveBlocker = useBlocker({
+    shouldBlockFn: () => transactionInProgress,
+    enableBeforeUnload: transactionInProgress,
+    withResolver: true,
+  });
 
   const add = (p: Product) => {
     if (p.stock <= 0) {
@@ -581,6 +598,29 @@ function POSPage() {
           </button>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog
+        open={leaveBlocker.status === "blocked"}
+        onOpenChange={(open) => !open && leaveBlocker.reset?.()}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Keluar dari transaksi?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Transaksi ini belum selesai. Jika Anda keluar sekarang, item di keranjang akan
+              hilang. Gunakan tombol Hold jika ingin melanjutkan transaksi ini nanti.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => leaveBlocker.reset?.()}>
+              Lanjutkan Transaksi
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={() => leaveBlocker.proceed?.()}>
+              Keluar & Batalkan
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
